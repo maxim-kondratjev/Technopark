@@ -1,0 +1,1 @@
+Text file" refers to a type of container, while plain text refers to a type of content. Text files can contain plain text, but they are not limited to such.
