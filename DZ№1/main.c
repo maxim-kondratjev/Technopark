@@ -1,18 +1,17 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include "Prototypes.h"
+#include "Functions.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-	char* word = (char*)malloc(100);
-	char* text = (char*)malloc(100);
-	printf("Write a word:\n");
-	scanf("%s", word);
-	printf("Write file's name:\n");
-	scanf("%s", text);
-	double DIS=Dispersion(word,text);
-	printf("%s%s%s","Dispersion ", word, " in ");
-	printf("%s%s%g", text, " is ", DIS);
-	scanf("%s",word);
+	if (argc == 3)
+	{
+		double dis = dispersion(argv[1], argv[2]);
+		if (dis==-1) printf("Something went wrong\n");
+		else printf("Dispersion %s in %s  is %g\n", argv[1], argv[2], dis);
+	}
+	else
+	{
+		printf("Invalid number of arguments\n");
+	}
 	return 0;
 }

@@ -4,80 +4,97 @@
 #include <stdlib.h>
 #include <math.h>
 
-int WordsCounter(char* Word, char* file)
+int sentencecounter(FILE* fileptr)
 {
-	FILE* fileptr = fopen(file, "r");
-	if (fileptr==NULL)
+	int amountS=0;
+	char ch = 'A';
+	while ((ch = fgetc(fileptr)) != EOF)
 	{
-		printf("%s", "ERROR\nfile is not find\n");
-		return 0;
+		if (ch == '!' || ch == '?' || ch == '.')
+			amountS++;
 	}
-	char* word = NULL;
-	int letterAM = 0;
-	char* delimS = "!?.\n";
-	char* delimW = ",: ;\t";
+	rewind(fileptr);
+	return amountS;
+}
+int wordcounter(int* arrname, int size, char* word, FILE* file)
+{
 	int amountW = 0;
 	int amountS = 0;
-	char* buf = NULL;
-	char ch = 'A';
-	while ((ch = fgetc(fileptr))!=EOF)
+	int flag = 1;//для посимвольного сравнения (становится 1 в начале слова, 0 - при не совпадении символов или большем количестве букв, знаке пунктуации, пробеле)
+	int numofletters = 0;
+	char ch = '.';
+	while ((ch = fgetc(file)) != EOF)
 	{
-		if (strchr(delimS, ch) == NULL)
+		if (ispunct(ch) || isspace(ch))
 		{
-			if (strchr(delimW, ch) == NULL)
+			if (flag == 1) amountW++;
+			if (ch == '!' || ch == '?' || ch == '.')
 			{
-				if (letterAM > 0)
-				{
-					buf = word;
-				}
-				letterAM++;
-				word = (char*)malloc((letterAM) * sizeof(char));
-				if (letterAM > 1)
-				{
-					word = buf;
-				}
-				word[letterAM - 1] = ch;
+				arrname[amountS] = amountW;
+				amountW = 0;
+				amountS++;
 			}
-			else
-			{
-				if (letterAM > 0)
-				{
-					word[letterAM] = '\0';
-					if (strcmp(word, Word) == 0)
-					{
-						amountW++;
-					}
-				}
-				word = NULL;
-				letterAM = 0;
-			}
+				flag = 0;
+				numofletters = 0;
 		}
 		else
 		{
-			amountS++;
-			if (letterAM > 0)
+			if (numofletters == 0) flag = 1;
+			numofletters++;
+			if (!(numofletters > strlen(word)))
 			{
-				word[letterAM] = '\0';
-				if (strcmp(word, Word) == 0)
-				{
-					amountW++;
-				}
+				if (ch != word[numofletters-1]) flag = 0;
 			}
-			word = NULL;
-			letterAM = 0;
+			else flag = 0;
 		}
 	}
-	return amountW;
+	if (ch == EOF) return 1;
+	else return 0;
 }
 
-double Dispersion(char* wordptr, char* docnameptr)
+double discounter(int* arrname, int size)
 {
-	char* text2 = "text2.txt";
-	char* text3 = "text3.txt";
-	int AoW = WordsCounter(wordptr, docnameptr);
-	int AoW2 = WordsCounter(wordptr, text2);
-	int AoW3 = WordsCounter(wordptr, text3);
-	int average = (AoW+AoW2+AoW3)/3;
-	double D = sqrt(((AoW - average)*(AoW - average) + (AoW2 - average)*(AoW2 - average) + (AoW3 - average)*(AoW3 - average)) / 2);
+	double average = 0;
+	for (int i = 0; i<size; i++)
+	{
+		average = average + arrname[i];
+	}
+	average = average / size;
+	double D = 0;
+	for (int i = 0; i<size; i++)
+	{
+		D = D + (arrname[i] - average)*(arrname[i] - average);
+	}
+	D = sqrt(D / (size - 1));
 	return D;
+}
+
+double dispersion(char* Word, char* File)
+{
+	FILE* Fileptr = fopen(File, "r");
+	if (Fileptr==NULL)
+	{
+		printf("ERROR\nfile not find\n");
+		return -1;
+	}
+	int N=sentencecounter(Fileptr);
+	int* arrWinS = (int*)malloc(N * sizeof(int));
+	if (arrWinS == NULL) 
+	{ 
+		return -1; 
+		printf("ERROR\nmemory not allocated\n"); 
+	}
+	if (!wordcounter(arrWinS, N, Word, Fileptr))
+	{
+		printf("ERROR\nfile not read\n");
+		return -1;
+	}
+	double dis = discounter(arrWinS, N);
+	free(arrWinS);
+	if (fclose(Fileptr)==0) return dis;
+	else 
+	{ 
+		printf("ERROR\nfile not close\n"); 
+		return -1; 
+	}
 }
