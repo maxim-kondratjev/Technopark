@@ -12,24 +12,24 @@ void set_elem(void* matr, int row, int col, double elem)
 	((double**)matr)[row][col] = elem;
 }
 
-void* set_matr(void* matr, int nrows, int ncols, int no_nul_elem, FILE* file)
+void* set_matr(void* matr, int nrows, int ncols, int no_nul_elem, FILE* file)//нет смысла передавать указатель (все равно значение не изменить)
 {
-	matr = (double**)malloc(nrows*(sizeof(double*)));
-	if (matr==NULL)
+	matr = (double**)сalloc(nrows*(sizeof(double*)));
+	if (matr==NULL)//чистка памяти в ошибках
 	{
 		printf("ERROR\nmemory not allocated\n");
 		return NULL;
 	}
 	for (int i = 0; i < nrows; i++)
 	{
-		((double**)matr)[i] = (double*)malloc(ncols*(sizeof(double)));
-		if (((double**)matr)[i] == NULL)
+		((double**)matr)[i] = (double*)сalloc(ncols*(sizeof(double)));
+		if (((double**)matr)[i] == NULL)//чистка памяти в ошибках
 		{
 			printf("ERROR\nmemory not allocated\n");
 			return NULL;
 		}
 	}
-	for (int r = 0; r < nrows; r++)
+	for (int r = 0; r < nrows; r++)//обнуление сalloc-ом
 	{
 		for (int c = 0; c < ncols; c++)
 		{
@@ -57,11 +57,11 @@ void* read_matr(char* filename, int* nrows, int* ncols)
 	FILE* file = fopen(filename, "r");
 	if (file == NULL)
 	{
-		printf("ERROR\nfile not opened\n");
+		printf("ERROR\nfile not opened\n");//обработчик ошибок errno (везде)
 		return NULL;
 	}
 	int no_nul_elem = 0;
-	if (3 != fscanf(file, "%d%d%d", nrows, ncols, &no_nul_elem))
+	if (3 != fscanf(file, "%d%d%d", nrows, ncols, &no_nul_elem))//закрытие файла при каждом аварии
 	{
 		printf("ERROR\nfile not read\n");
 		return NULL;
@@ -71,7 +71,7 @@ void* read_matr(char* filename, int* nrows, int* ncols)
 	{
 		return NULL;
 	}
-	if (fclose(file) != 0)
+	if (fclose(file) != 0)//обрабатывать не нужно
 	{
 		printf("ERROR\nfile not closed\n");
 		return NULL;
@@ -81,7 +81,7 @@ void* read_matr(char* filename, int* nrows, int* ncols)
 
 double norm_counter(void* matr, int nrows, int ncols)
 {
-	double* sumrow = (double*)malloc(nrows * sizeof(double));
+	double* sumrow = (double*)malloc(nrows * sizeof(double));//чистка памяти при ошибке
 	if (sumrow == NULL)
 	{
 		printf("ERROR\nmemory not allocated\n");
