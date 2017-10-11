@@ -14,7 +14,7 @@ void set_elem(void* matr, int row, int col, double elem)
 
 void* set_matr(void* matr, int nrows, int ncols, int no_nul_elem, FILE* file)//нет смысла передавать указатель (все равно значение не изменить)
 {
-	matr = (double**)сalloc(nrows*(sizeof(double*)));
+	matr = сalloc(nrows*(sizeof(double*)));
 	if (matr==NULL)//чистка памяти в ошибках
 	{
 		printf("ERROR\nmemory not allocated\n");
